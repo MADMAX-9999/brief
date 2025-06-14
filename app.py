@@ -38,7 +38,7 @@ def main():
     imie = st.text_input("Imię:")
     email = st.text_input("Email:")
     st.header("ETAP 1/7 – Edukacja i wsparcie (opcjonalny)")
-    wiedza = st.radio("1. Jak ocenia Pan/Pani swoją wiedzę na temat inwestycji?", ["Początkujący", "Średniozaawansowany", "Zaawansowany"])
+    wiedza = st.radio("1] Jak ocenia Pan/Pani swoją wiedzę na temat inwestycji?", ["Początkujący", "Średniozaawansowany", "Zaawansowany"])
     edukacja = st.radio("2. Czy jest Pan/Pani zainteresowany/a wsparciem edukacyjnym?", ["Tak", "Nie"])
     doswiadczenie = st.text_area("3. Jakie są dotychczasowe doświadczenia inwestycyjne?")
 
