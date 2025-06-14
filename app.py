@@ -6,7 +6,8 @@ import datetime
 def generate_pdf(data):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
+    pdf.set_font('DejaVu', '', 12)
 
     pdf.cell(200, 10, txt="Brief Strategii Budowania Majątku", ln=True, align='C')
     pdf.cell(200, 10, txt=f"Data: {datetime.date.today()}", ln=True)
