@@ -1,4 +1,29 @@
 import streamlit as st
+from fpdf import FPDF
+import pandas as pd
+import datetime
+
+def generate_pdf(data):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    pdf.cell(200, 10, txt="Brief Strategii Budowania Majątku", ln=True, align='C')
+    pdf.cell(200, 10, txt=f"Data: {datetime.date.today()}", ln=True)
+    pdf.ln(10)
+
+    for k, v in data.items():
+        pdf.multi_cell(0, 10, f"{k}: {v if v else '—'}")
+
+    filename = f"brief_{datetime.date.today()}.pdf"
+    pdf.output(filename)
+    return filename
+
+def generate_csv(data):
+    df = pd.DataFrame(data.items(), columns=["Pytanie", "Odpowiedź"])
+    filename = f"brief_{datetime.date.today()}.csv"
+    df.to_csv(filename, index=False)
+    return filename
 
 def main():
     st.set_page_config(page_title="Brief Strategii Majątku", layout="centered")
@@ -24,6 +49,7 @@ def main():
     wlasnosc = st.radio("5. Czy zależy Państwu na pełnej własności fizycznego metalu?", ["Tak", "Nie"])
     sprzedaz = st.radio("6. Czy ważna jest możliwość częściowej sprzedaży?", ["Tak", "Nie"])
     sukcesja = st.radio("7. Czy interesują Państwa rozwiązania sukcesyjne?", ["Tak", "Nie"])
+    forma_sukcesji = "—"
     if sukcesja == "Tak":
         forma_sukcesji = st.text_input("  a) Preferowana forma sukcesji:")
 
@@ -35,6 +61,7 @@ def main():
     niezaleznosc = st.radio("10. Czy cenią Państwo niezależność i poufność?", ["Tak", "Nie"])
     poza_systemem = st.radio("11. Gotowość do działania poza systemem bankowym?", ["Tak", "Nie"])
     swiadomosc = st.radio("12. Czy są Państwo świadomi kwestii podatkowych?", ["Tak", "Nie"])
+    wsparcie_podatki = "—"
     if swiadomosc == "Tak":
         wsparcie_podatki = st.radio("  Czy potrzebują Państwo wsparcia w tym zakresie?", ["Tak", "Nie"])
 
@@ -57,14 +84,58 @@ def main():
     plan = st.radio("24. Czy to jednorazowa kwota, czy część większego planu?", ["Jednorazowa", "Plan alokacji"])
 
     firma = st.radio("25. Czy prowadzą Państwo działalność gospodarczą?", ["Tak", "Nie"])
+    obroty = 0
+    udzial = 0
+    zysk_prywatny = "—"
     if firma == "Tak":
         obroty = st.number_input("  a) Roczne obroty firmy (EUR):", min_value=0.0, step=10000.0)
         udzial = st.slider("  b) Procentowy udział w firmie:", 1, 100, 50)
         zysk_prywatny = st.radio("  c) Czy chcą Państwo budować majątek z zysków firmy?", ["Tak", "Nie"])
 
     if st.button("🔍 Przejdź do analizy odpowiedzi"):
-        st.success("Dziękujemy! Formularz został wypełniony. Można przygotować strategię.")
-        # Tutaj można uruchomić dalszą logikę lub generację PDF/strategii
+        responses = {
+            "Poziom wiedzy": wiedza,
+            "Wsparcie edukacyjne": edukacja,
+            "Doświadczenia inwestycyjne": doswiadczenie,
+            "Priorytety": ', '.join(priorytety),
+            "Własność metali": wlasnosc,
+            "Możliwość sprzedaży": sprzedaz,
+            "Sukcesja": sukcesja,
+            "Forma sukcesji": forma_sukcesji,
+            "Inne aktywa": aktywa,
+            "Dodatkowa alokacja": dodatkowa_alokacja,
+            "Niezależność i poufność": niezaleznosc,
+            "Poza systemem bankowym": poza_systemem,
+            "Świadomość podatkowa": swiadomosc,
+            "Wsparcie podatkowe": wsparcie_podatki,
+            "Cel budowy majątku": cel,
+            "Horyzont budowy": horyzont_budowy,
+            "Horyzont korzystania": horyzont_korzystania,
+            "Strategia sukcesyjna": pokolenia,
+            "DBM": dynamika,
+            "Otwartość na zwiększanie": otwartosc,
+            "Ryzyko": ryzyko,
+            "Kapitał początkowy": f"{kapital:.2f} EUR",
+            "Zakupy miesięczne": f"{miesiecznie:.2f} EUR",
+            "Zwiększanie zakupów": zwiekszanie_kwot,
+            "Źródło środków": zrodlo,
+            "Charakter środków": plan,
+            "Prowadzenie firmy": firma,
+        }
+        if firma == "Tak":
+            responses["Obroty firmy"] = f"{obroty:.2f} EUR"
+            responses["Udział w firmie"] = f"{udzial}%"
+            responses["Zyski do majątku"] = zysk_prywatny
+
+        st.success("Dziękujemy! Formularz został wypełniony.")
+        pdf_file = generate_pdf(responses)
+        csv_file = generate_csv(responses)
+
+        with open(pdf_file, "rb") as f:
+            st.download_button("📄 Pobierz PDF", f, file_name=pdf_file, mime="application/pdf")
+
+        with open(csv_file, "rb") as f:
+            st.download_button("📊 Pobierz CSV", f, file_name=csv_file, mime="text/csv")
 
 if __name__ == "__main__":
     main()
