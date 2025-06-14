@@ -94,6 +94,8 @@ def main():
         obroty = st.number_input("  a) Roczne obroty firmy (EUR):", min_value=0.0, step=10000.0)
         udzial = st.slider("  b) Procentowy udział w firmie:", 1, 100, 50)
         zysk_prywatny = st.radio("  c) Czy chcą Państwo budować majątek z zysków firmy?", ["Tak", "Nie"])
+        decyzyjnosc = st.radio("  d) Czy samodzielnie decydują Państwo o swoich pieniądzach?", ["Tak", "Nie"])
+
 
     if st.button("🔍 Przejdź do analizy odpowiedzi"):
         responses = {
@@ -131,6 +133,7 @@ def main():
             responses["Obroty firmy"] = f"{obroty:.2f} EUR"
             responses["Udział w firmie"] = f"{udzial}%"
             responses["Zyski do majątku"] = zysk_prywatny
+            responses["Decyzyjność"] = decyzyjnosc
 
         st.success("Dziękujemy! Formularz został wypełniony.")
         pdf_file = generate_pdf(responses)
