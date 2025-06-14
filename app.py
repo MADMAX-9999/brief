@@ -35,8 +35,8 @@ def main():
     aby stworzyć spersonalizowaną i efektywną strategię inwestycyjną.
     """)
 
-    imie = st.text_area("Imię:")
-    email = st.text_area("Email:")
+    imie = st.text_input("Imię:")
+    email = st.text_input("Email:")
     st.header("ETAP 1/7 – Edukacja i wsparcie (opcjonalny)")
     wiedza = st.radio("1. Jak ocenia Pan/Pani swoją wiedzę na temat inwestycji?", ["Początkujący", "Średniozaawansowany", "Zaawansowany"])
     edukacja = st.radio("2. Czy jest Pan/Pani zainteresowany/a wsparciem edukacyjnym?", ["Tak", "Nie"])
