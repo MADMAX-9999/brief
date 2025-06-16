@@ -217,12 +217,15 @@ def main():
             "DBM": dynamika,
             "Otwartość na zwiększanie": otwartosc,
             "Ryzyko": ryzyko,
+            "Prowadzenie firmy": firma,
+            "Źródło środków": zrodlo,
+            "Charakter środków": plan,
+            "Zatrudnienie": zatrudnienie,
             "Kapitał początkowy": f"{kapital:.2f} EUR",
             "Zakupy miesięczne": f"{miesiecznie:.2f} EUR",
             "Zwiększanie zakupów": zwiększanie_kwot,
-            "Źródło środków": zrodlo,
-            "Charakter środków": plan,
-            "Prowadzenie firmy": firma,
+            
+            
             "Rating Index (RI)": ri_score
         }
         
