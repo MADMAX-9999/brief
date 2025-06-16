@@ -237,9 +237,9 @@ def main():
         # Interpretacja wyniku
         if ri_score <= 30:
             interpretation = "**Niski poziom gotowości** - Zalecana edukacja i ostrożne podejście"
-        elif ri_score <= 50:
+        elif ri_score <= 40:
             interpretation = "**Średni poziom gotowości** - Dobry potencjał do rozwoju strategii"
-        elif ri_score <= 70:
+        elif ri_score <= 50:
             interpretation = "**Wysoki poziom gotowości** - Bardzo dobre podstawy do budowy majątku"
         else:
             interpretation = "**Bardzo wysoki poziom gotowości** - Doskonałe warunki do agresywnej strategii"
