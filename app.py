@@ -52,15 +52,26 @@ def calculate_ri(data):
 def generate_pdf(data, timestamp):
     pdf = FPDF()
     pdf.add_page()
-    pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
-    pdf.set_font('DejaVu', '', 12)
+    # Używamy domyślnej czcionki, jeśli DejaVu nie jest dostępna
+    try:
+        pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVu', '', 12)
+    except:
+        pdf.set_font('Arial', '', 12)
 
-    pdf.cell(200, 10, txt="Brief Strategii Budowania Majątku", ln=True, align='C')
+    pdf.cell(200, 10, txt="Brief Strategii Budowania Majatku", ln=True, align='C')
     pdf.cell(200, 10, txt=f"Data: {datetime.date.today()}", ln=True)
     pdf.ln(10)
 
     for k, v in data.items():
-        pdf.multi_cell(0, 10, f"{k}: {v if v else '—'}")
+        # Konwersja na string i obsługa polskich znaków
+        text = f"{k}: {str(v) if v else '—'}"
+        try:
+            pdf.multi_cell(0, 10, text)
+        except:
+            # Fallback dla polskich znaków
+            text_ascii = text.encode('ascii', 'ignore').decode('ascii')
+            pdf.multi_cell(0, 10, text_ascii)
 
     filename = f"brief_{timestamp}.pdf"
     pdf.output(filename)
@@ -69,7 +80,7 @@ def generate_pdf(data, timestamp):
 def generate_csv(data, timestamp):
     df = pd.DataFrame(data.items(), columns=["Pytanie", "Odpowiedź"])
     filename = f"brief_{timestamp}.csv"
-    df.to_csv(filename, index=False)
+    df.to_csv(filename, index=False, encoding='utf-8')
     return filename
 
 def main():
@@ -84,6 +95,7 @@ def main():
 
     imie = st.text_input("Imię:")
     email = st.text_input("Email:")
+    
     st.header("ETAP 1/7 – Edukacja i wsparcie (opcjonalny)")
     wiedza = st.radio("1. Jak ocenia Pan/Pani swoją wiedzę na temat inwestycji?", ["Początkujący", "Średniozaawansowany", "Zaawansowany"])
     edukacja = st.radio("2. Czy jest Pan/Pani zainteresowany/a wsparciem edukacyjnym?", ["Tak", "Nie"])
@@ -129,22 +141,53 @@ def main():
     st.header("ETAP 7/7 – Diagnoza możliwości i zaangażowania")
     kapital = st.number_input("20. Kwota początkowa (EUR):", min_value=0.0, step=1000.0)
     miesiecznie = st.number_input("21. Kwota miesięczna na zakupy (EUR):", min_value=0.0, step=100.0)
-    zwiekszanie_kwot = st.radio("22. Czy planują Państwo zwiększyć kwoty w przyszłości?", ["Tak", "Nie"])
+    zwiększanie_kwot = st.radio("22. Czy planują Państwo zwiększyć kwoty w przyszłości?", ["Tak", "Nie"])
     zrodlo = st.text_input("23. Źródło środków na start:")
     plan = st.radio("24. Czy to jednorazowa kwota, czy część większego planu?", ["Jednorazowa", "Plan alokacji"])
 
     firma = st.radio("25. Czy prowadzą Państwo działalność gospodarczą?", ["Tak", "Nie"])
     obroty = 0
     udzial = 0
-    zysk_prywatny = "—"
+    zysk_prywatny = "Nie"
+    decyzyjnosc = "Nie"
+    
     if firma == "Tak":
         obroty = st.number_input("  a) Roczne obroty firmy (EUR):", min_value=0.0, step=10000.0)
         udzial = st.slider("  b) Procentowy udział w firmie:", 1, 100, 50)
         zysk_prywatny = st.radio("  c) Czy chcą Państwo budować majątek z zysków firmy?", ["Tak", "Nie"])
         decyzyjnosc = st.radio("  d) Czy samodzielnie decydują Państwo o swoich pieniądzach?", ["Tak", "Nie"])
 
-
     if st.button("🔍 Przejdź do analizy odpowiedzi"):
+        # Przygotowanie danych do obliczenia Rating Index
+        calculation_data = {
+            "wiedza": wiedza,
+            "edukacja": edukacja,
+            "priorytety": priorytety,
+            "wlasnosc": wlasnosc,
+            "sprzedaz": sprzedaz,
+            "sukcesja": sukcesja,
+            "aktywa": aktywa,
+            "dodatkowa_alokacja": dodatkowa_alokacja,
+            "niezaleznosc": niezaleznosc,
+            "poza_systemem": poza_systemem,
+            "swiadomosc": swiadomosc,
+            "wsparcie_podatki": wsparcie_podatki,
+            "horyzont_budowy": horyzont_budowy,
+            "pokolenia": pokolenia,
+            "dynamika": dynamika,
+            "otwartosc": otwartosc,
+            "ryzyko": ryzyko,
+            "zwiększanie_kwot": zwiększanie_kwot,
+            "plan": plan,
+            "firma": firma,
+            "zysk_prywatny": zysk_prywatny,
+            "decyzyjnosc": decyzyjnosc
+        }
+        
+        # Obliczenie Rating Index
+        ri_score = calculate_ri(calculation_data)
+        
+        # Przygotowanie danych do raportu
         responses = {
             "Imię": imie,
             "Email": email,
@@ -171,11 +214,13 @@ def main():
             "Ryzyko": ryzyko,
             "Kapitał początkowy": f"{kapital:.2f} EUR",
             "Zakupy miesięczne": f"{miesiecznie:.2f} EUR",
-            "Zwiększanie zakupów": zwiekszanie_kwot,
+            "Zwiększanie zakupów": zwiększanie_kwot,
             "Źródło środków": zrodlo,
             "Charakter środków": plan,
             "Prowadzenie firmy": firma,
+            "Rating Index (RI)": ri_score
         }
+        
         if firma == "Tak":
             responses["Obroty firmy"] = f"{obroty:.2f} EUR"
             responses["Udział w firmie"] = f"{udzial}%"
@@ -183,25 +228,42 @@ def main():
             responses["Decyzyjność"] = decyzyjnosc
 
         st.success("Dziękujemy! Formularz został wypełniony.")
-        pdf_file = generate_pdf(responses, timestamp)
-        csv_file = generate_csv(responses, timestamp)
+        
+        # Wyświetlenie Rating Index
+        st.markdown(f"## 📊 Rating Index (RI): **{ri_score}**")
+        
+        # Interpretacja wyniku
+        if ri_score <= 30:
+            interpretation = "**Niski poziom gotowości** - Zalecana edukacja i ostrożne podejście"
+        elif ri_score <= 50:
+            interpretation = "**Średni poziom gotowości** - Dobry potencjał do rozwoju strategii"
+        elif ri_score <= 70:
+            interpretation = "**Wysoki poziom gotowości** - Bardzo dobre podstawy do budowy majątku"
+        else:
+            interpretation = "**Bardzo wysoki poziom gotowości** - Doskonałe warunki do agresywnej strategii"
+            
+        st.markdown(f"### {interpretation}")
+        
+        # Zapisanie danych w session_state dla generowania plików
+        st.session_state.responses = responses
+        st.session_state.timestamp = timestamp
 
-        data = locals()
-    data_dict = {k: v for k, v in data.items() if k not in ["st", "pd", "datetime", "FPDF", "generate_pdf", "generate_csv", "main", "score_horyzont", "calculate_ri"]}
-    ri_score = calculate_ri(data_dict)
-    data_dict["Rating Index"] = ri_score
+    # Przycisk do generowania plików (dostępny po wypełnieniu formularza)
+    if 'responses' in st.session_state:
+        if st.button("📄 Generuj PDF i CSV"):
+            try:
+                pdf_file = generate_pdf(st.session_state.responses, st.session_state.timestamp)
+                csv_file = generate_csv(st.session_state.responses, st.session_state.timestamp)
 
-    st.markdown(f"## 📊 Rating Index (RI): **{ri_score}**")
+                with open(pdf_file, "rb") as f:
+                    st.download_button("📥 Pobierz PDF", f, file_name=pdf_file, mime="application/pdf")
 
-    if st.button("📄 Generuj PDF i CSV"):
-        pdf_file = generate_pdf(data_dict)
-        csv_file = generate_csv(data_dict)
-
-        with open(pdf_file, "rb") as f:
-            st.download_button("📥 Pobierz PDF", f, file_name=pdf_file, mime="application/pdf")
-
-        with open(csv_file, "rb") as f:
-            st.download_button("📥 Pobierz CSV", f, file_name=csv_file, mime="text/csv")
+                with open(csv_file, "rb") as f:
+                    st.download_button("📥 Pobierz CSV", f, file_name=csv_file, mime="text/csv")
+                    
+                st.success("Pliki zostały wygenerowane i są gotowe do pobrania!")
+            except Exception as e:
+                st.error(f"Błąd podczas generowania plików: {str(e)}")
 
 if __name__ == "__main__":
     main()
