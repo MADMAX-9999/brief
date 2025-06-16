@@ -123,7 +123,9 @@ def main():
     niezaleznosc = st.radio("10. Czy cenią Państwo niezależność i poufność?", ["Tak", "Nie"])
     poza_systemem = st.radio("11. Gotowość do działania poza systemem bankowym?", ["Tak", "Nie"])
     swiadomosc = st.radio("12. Czy są Państwo świadomi kwestii podatkowych?", ["Tak", "Nie"])
-    wsparcie_podatki = "—"
+    
+    # POPRAWKA: Inicjalizacja zmiennej wsparcie_podatki z wartością domyślną
+    wsparcie_podatki = "Nie"
     if swiadomosc == "Tak":
         wsparcie_podatki = st.radio("  Czy potrzebują Państwo wsparcia w tym zakresie?", ["Tak", "Nie"])
 
