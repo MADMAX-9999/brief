@@ -141,13 +141,7 @@ def main():
     ryzyko = st.radio("19] Akceptowalny poziom ryzyka?", ["Niski", "Umiarkowany", "Wysoki"])
 
     st.header("ETAP 7/7 – Diagnoza możliwości i zaangażowania")
-    kapital = st.number_input("20] Kwota początkowa (EUR):", min_value=0.0, step=1000.0)
-    miesiecznie = st.number_input("21] Kwota miesięczna na zakupy (EUR):", min_value=0.0, step=100.0)
-    zwiększanie_kwot = st.radio("22] Czy planują Państwo zwiększyć kwoty w przyszłości?", ["Tak", "Nie"])
-    zrodlo = st.text_input("23] Źródło środków na start:")
-    plan = st.radio("24] Czy to jednorazowa kwota, czy część większego planu?", ["Jednorazowa", "Plan alokacji"])
-
-    firma = st.radio("25] Czy prowadzą Państwo działalność gospodarczą?", ["Tak", "Nie"])
+    firma = st.radio("20] Czy prowadzą Państwo działalność gospodarczą?", ["Tak", "Nie"])
     obroty = 0
     udzial = 0
     zysk_prywatny = "Nie"
@@ -158,6 +152,15 @@ def main():
         udzial = st.slider("  b) Procentowy udział w firmie:", 1, 100, 50)
         zysk_prywatny = st.radio("  c) Czy chcą Państwo budować majątek z zysków firmy?", ["Tak", "Nie"])
         decyzyjnosc = st.radio("  d) Czy samodzielnie decydują Państwo o swoich pieniądzach?", ["Tak", "Nie"])
+        zatrudnienie = st.text_input("  e) Wysokość zatrudnienia:")
+        
+    kapital = st.number_input("21] Kwota początkowa (EUR):", min_value=0.0, step=1000.0)
+    miesiecznie = st.number_input("22] Kwota miesięczna na zakupy (EUR):", min_value=0.0, step=100.0)
+    zwiększanie_kwot = st.radio("23] Czy planują Państwo zwiększyć kwoty w przyszłości?", ["Tak", "Nie"])
+    zrodlo = st.text_input("24] Źródło środków na start:")
+    plan = st.radio("25] Czy to jednorazowa kwota, czy część większego planu?", ["Jednorazowa", "Plan alokacji"])
+
+    
 
     if st.button("🔍 Przejdź do analizy odpowiedzi"):
         # Przygotowanie danych do obliczenia Rating Index
