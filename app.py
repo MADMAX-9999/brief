@@ -3,6 +3,52 @@ from fpdf import FPDF
 import pandas as pd
 import datetime
 
+def score_horyzont(horyzont):
+    try:
+        h = int(horyzont)
+        if h <= 7:
+            return 1
+        elif h <= 15:
+            return 2
+        elif h <= 25:
+            return 3
+        else:
+            return 4
+    except:
+        return 0
+
+def calculate_ri(data):
+    score = 0
+    score += {"Początkujący": 3, "Średniozaawansowany": 2, "Zaawansowany": 1}.get(data["wiedza"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["edukacja"], 0)
+    priorytety_scores = {
+        "Trwałość wartości i ochrona siły nabywczej": 4,
+        "Wzrost wartości i potencjał zysku": 1,
+        "Płynność i dostępność środków": 2,
+        "Pełna niezależność systemowa i poufność": 3
+    }
+    score += sum([priorytety_scores.get(p, 0) for p in data["priorytety"]])
+    score += {"Tak": 2, "Nie": 1}.get(data["wlasnosc"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["sprzedaz"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["sukcesja"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["aktywa"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["dodatkowa_alokacja"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["niezaleznosc"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["poza_systemem"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["swiadomosc"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["wsparcie_podatki"], 0)
+    score += score_horyzont(data["horyzont_budowy"])
+    score += {"Tak": 2, "Nie": 1}.get(data["pokolenia"], 0)
+    score += int(data["dynamika"])
+    score += {"Tak": 2, "Nie": 1}.get(data["otwartosc"], 0)
+    score += {"Niski": 3, "Umiarkowany": 2, "Wysoki": 1}.get(data["ryzyko"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["zwiększanie_kwot"], 0)
+    score += {"Jednorazowa": 1, "Plan alokacji": 2}.get(data["plan"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["firma"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["zysk_prywatny"], 0)
+    score += {"Tak": 2, "Nie": 1}.get(data["decyzyjnosc"], 0)
+    return score
+
 def generate_pdf(data, timestamp):
     pdf = FPDF()
     pdf.add_page()
@@ -140,11 +186,22 @@ def main():
         pdf_file = generate_pdf(responses, timestamp)
         csv_file = generate_csv(responses, timestamp)
 
+        data = locals()
+    data_dict = {k: v for k, v in data.items() if k not in ["st", "pd", "datetime", "FPDF", "generate_pdf", "generate_csv", "main", "score_horyzont", "calculate_ri"]}
+    ri_score = calculate_ri(data_dict)
+    data_dict["Rating Index"] = ri_score
+
+    st.markdown(f"## 📊 Rating Index (RI): **{ri_score}**")
+
+    if st.button("📄 Generuj PDF i CSV"):
+        pdf_file = generate_pdf(data_dict)
+        csv_file = generate_csv(data_dict)
+
         with open(pdf_file, "rb") as f:
-            st.download_button("📄 Pobierz PDF", f, file_name=pdf_file, mime="application/pdf")
+            st.download_button("📥 Pobierz PDF", f, file_name=pdf_file, mime="application/pdf")
 
         with open(csv_file, "rb") as f:
-            st.download_button("📊 Pobierz CSV", f, file_name=csv_file, mime="text/csv")
+            st.download_button("📥 Pobierz CSV", f, file_name=csv_file, mime="text/csv")
 
 if __name__ == "__main__":
     main()
