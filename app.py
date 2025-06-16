@@ -3,7 +3,7 @@ from fpdf import FPDF
 import pandas as pd
 import datetime
 
-def generate_pdf(data):
+def generate_pdf(data, timestamp):
     pdf = FPDF()
     pdf.add_page()
     pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
@@ -16,17 +16,18 @@ def generate_pdf(data):
     for k, v in data.items():
         pdf.multi_cell(0, 10, f"{k}: {v if v else '—'}")
 
-    filename = f"brief_{datetime.date.today()}.pdf"
+    filename = f"brief_{timestamp}.pdf"
     pdf.output(filename)
     return filename
 
-def generate_csv(data):
+def generate_csv(data, timestamp):
     df = pd.DataFrame(data.items(), columns=["Pytanie", "Odpowiedź"])
-    filename = f"brief_{datetime.date.today()}.csv"
+    filename = f"brief_{timestamp}.csv"
     df.to_csv(filename, index=False)
     return filename
 
 def main():
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     st.set_page_config(page_title="Brief Strategii Majątku", layout="centered")
     st.title("📘 Kompleksowy Brief Strategii Budowania Majątku")
 
@@ -136,8 +137,8 @@ def main():
             responses["Decyzyjność"] = decyzyjnosc
 
         st.success("Dziękujemy! Formularz został wypełniony.")
-        pdf_file = generate_pdf(responses)
-        csv_file = generate_csv(responses)
+        pdf_file = generate_pdf(responses, timestamp)
+        csv_file = generate_csv(responses, timestamp)
 
         with open(pdf_file, "rb") as f:
             st.download_button("📄 Pobierz PDF", f, file_name=pdf_file, mime="application/pdf")
