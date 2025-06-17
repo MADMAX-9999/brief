@@ -158,7 +158,7 @@ def main():
     miesiecznie = st.number_input("22] Kwota miesięczna na zakupy (EUR):", min_value=0.0, step=100.0)
     zwiększanie_kwot = st.radio("23] Czy planują Państwo zwiększyć kwoty w przyszłości?", ["Tak", "Nie"])
     zrodlo = st.text_input("24] Źródło środków na start:")
-    plan = st.radio("25] Czy to jednorazowa kwota, czy część większego planu?", ["Jednorazowa", "Plan alokacji"])
+    plan = st.radio("25] Czy to jednorazowa kwota, czy część większego planu?", ["Plan alokacji", "Jednorazowa"])
 
     
 
